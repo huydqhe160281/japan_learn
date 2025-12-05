@@ -17,31 +17,34 @@ export const AppLoading = ({
   tip = "Đang tải...",
   className,
 }: AppLoadingProps) => {
-  const spinner = (
-    <Spin
-      size={size}
-      tip={tip}
-      indicator={
-        <LoadingOutlined
-          style={{ fontSize: size === "large" ? 48 : 24 }}
-          spin
-        />
-      }
-      className={clsx(className)}
-    />
-  );
+  const spinnerSize = size === "large" ? 48 : size === "default" ? 32 : 16;
 
   if (fullScreen) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-        {spinner}
+        <Spin
+          size={size}
+          tip={tip}
+          indicator={<LoadingOutlined style={{ fontSize: spinnerSize }} spin />}
+        />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[200px] items-center justify-center py-12">
-      {spinner}
+    <div
+      className={clsx(
+        "flex min-h-[200px] items-center justify-center py-12",
+        className,
+      )}
+    >
+      <div className="flex flex-col items-center gap-4">
+        <Spin
+          size={size}
+          indicator={<LoadingOutlined style={{ fontSize: spinnerSize }} spin />}
+        />
+        {tip && <span className="text-gray-600">{tip}</span>}
+      </div>
     </div>
   );
 };
