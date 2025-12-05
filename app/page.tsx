@@ -1,5 +1,5 @@
-import JapaneseQuiz from "./components/JapaneseQuiz";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <JapaneseQuiz />;
+  redirect("/multiple");
 }
