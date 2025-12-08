@@ -196,22 +196,13 @@ export default function FlashcardQuiz() {
   return (
     <AppCard variant="shadow">
       <div className="mb-6 text-center">
-        <AppTitle level={1} className="!mb-2">
+        <AppTitle level={1} className="!mb-2" data-tour="title">
           Flashcard Học Bảng Chữ Cái
         </AppTitle>
-        <AppText variant="secondary" size="lg">
-          Click vào thẻ để xem đáp án
-        </AppText>
-        <AppText size="sm" variant="secondary" className="mt-2 block">
-          💡 Phím tắt: <strong>Space/F/↑/↓</strong> - Lật thẻ,{" "}
-          <strong>→/N</strong> - Tiếp theo, <strong>←/P</strong> - Trước,{" "}
-          <strong>K</strong> - Đã biết, <strong>U</strong> - Chưa biết,{" "}
-          <strong>S</strong> - Shuffle
-        </AppText>
       </div>
 
       {/* Chọn loại bảng chữ cái */}
-      <div className="mb-6 flex justify-center">
+      <div className="mb-6 flex justify-center" data-tour="alphabet-selector">
         <AppSegmented
           variant="large"
           options={[
@@ -226,7 +217,7 @@ export default function FlashcardQuiz() {
       </div>
 
       {/* Thống kê */}
-      <Row gutter={16} className="mb-6">
+      <Row gutter={16} className="mb-6" data-tour="statistics">
         <Col span={8}>
           <AppCard>
             <AppStatistic
@@ -269,7 +260,7 @@ export default function FlashcardQuiz() {
 
       {/* Flashcard */}
       {currentCard && (
-        <div className="mb-6">
+        <div className="mb-6" data-tour="flashcard">
           <div
             className="relative mx-auto h-64 w-full cursor-pointer"
             style={{ perspective: "1000px" }}
@@ -348,7 +339,7 @@ export default function FlashcardQuiz() {
       )}
 
       {/* Controls */}
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-4" data-tour="controls">
         <AppButton
           colorType="primary"
           onClick={handlePrevious}
