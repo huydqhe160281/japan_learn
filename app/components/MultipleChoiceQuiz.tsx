@@ -90,28 +90,18 @@ export default function MultipleChoiceQuiz() {
     if (!showResult) return;
 
     const timer = setTimeout(() => {
-      setIsLoading(true);
+      const characters = alphabetType === "hiragana" ? hiragana : katakana;
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      const question = characters[randomIndex];
 
-      // Delay nhỏ để hiển thị loading
-      setTimeout(() => {
-        const characters = alphabetType === "hiragana" ? hiragana : katakana;
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        const question = characters[randomIndex];
+      setCurrentQuestion(question);
+      setSelectedAnswer("");
+      setShowResult(false);
 
-        setCurrentQuestion(question);
-        setSelectedAnswer("");
-        setShowResult(false);
-
-        const allRomaji = characters.map((char) => char.romaji);
-        const wrongAnswers = getRandomWrongAnswers(
-          question.romaji,
-          allRomaji,
-          3,
-        );
-        const allOptions = shuffleArray([question.romaji, ...wrongAnswers]);
-        setOptions(allOptions);
-        setIsLoading(false);
-      }, 500);
+      const allRomaji = characters.map((char) => char.romaji);
+      const wrongAnswers = getRandomWrongAnswers(question.romaji, allRomaji, 3);
+      const allOptions = shuffleArray([question.romaji, ...wrongAnswers]);
+      setOptions(allOptions);
     }, 2000); // 2 giây để người dùng xem kết quả
 
     return () => clearTimeout(timer);
@@ -159,20 +149,13 @@ export default function MultipleChoiceQuiz() {
   return (
     <AppCard variant="shadow">
       <div className="mb-6 text-center">
-        <AppTitle level={1} className="!mb-2">
+        <AppTitle level={1} className="!mb-2" data-tour="title">
           Học Bảng Chữ Cái Tiếng Nhật
         </AppTitle>
-        <AppText variant="secondary" size="lg">
-          Chọn đáp án đúng cho chữ cái được hiển thị
-        </AppText>
-        <AppText size="sm" variant="secondary" className="mt-2 block">
-          💡 Nhấn phím <strong>1-4</strong> hoặc <strong>A-D</strong> để chọn
-          đáp án
-        </AppText>
       </div>
 
       {/* Chọn loại bảng chữ cái */}
-      <div className="mb-6 flex justify-center">
+      <div className="mb-6 flex justify-center" data-tour="alphabet-selector">
         <AppSegmented
           variant="large"
           options={[
@@ -188,7 +171,7 @@ export default function MultipleChoiceQuiz() {
       </div>
 
       {/* Thống kê điểm số */}
-      <Row gutter={16} className="mb-6">
+      <Row gutter={16} className="mb-6" data-tour="statistics">
         <Col span={12}>
           <AppCard>
             <AppStatistic
@@ -213,7 +196,7 @@ export default function MultipleChoiceQuiz() {
       {/* Câu hỏi */}
       {currentQuestion && (
         <AppCard className="mb-6">
-          <div className="mb-6 text-center">
+          <div className="mb-6 text-center" data-tour="question">
             <div className="mb-4 text-8xl font-bold text-indigo-600">
               {currentQuestion.character}
             </div>
@@ -223,62 +206,64 @@ export default function MultipleChoiceQuiz() {
           </div>
 
           {/* Các lựa chọn */}
-          <AppRadioGroup
-            value={selectedAnswer}
-            onChange={(e) => handleAnswerSelect(e.target.value)}
-            disabled={showResult}
-          >
-            <Space orientation="vertical" size="middle" className="w-full">
-              {options.map((option, index) => {
-                const isSelected = selectedAnswer === option;
-                const isCorrectAnswer = option === currentQuestion.romaji;
-                const optionLabel = String.fromCharCode(65 + index);
-                let buttonClass =
-                  "w-full text-left transition-all duration-200";
+          <div data-tour="options">
+            <AppRadioGroup
+              value={selectedAnswer}
+              onChange={(e) => handleAnswerSelect(e.target.value)}
+              disabled={showResult}
+            >
+              <Space orientation="vertical" size="middle" className="w-full">
+                {options.map((option, index) => {
+                  const isSelected = selectedAnswer === option;
+                  const isCorrectAnswer = option === currentQuestion.romaji;
+                  const optionLabel = String.fromCharCode(65 + index);
+                  let buttonClass =
+                    "w-full text-left transition-all duration-200";
 
-                if (!showResult) {
-                  buttonClass +=
-                    " hover:bg-blue-50 hover:border-blue-400 hover:shadow-md";
-                }
-
-                if (showResult) {
-                  if (isCorrectAnswer) {
-                    buttonClass += " bg-green-100 border-green-500";
-                  } else if (isSelected && !isCorrectAnswer) {
-                    buttonClass += " bg-red-100 border-red-500";
+                  if (!showResult) {
+                    buttonClass +=
+                      " hover:bg-blue-50 hover:border-blue-400 hover:shadow-md";
                   }
-                }
 
-                return (
-                  <Radio.Button
-                    key={index}
-                    value={option}
-                    className={buttonClass}
-                    style={{
-                      height: "60px",
-                      display: "flex",
-                      alignItems: "center",
-                      fontSize: "18px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    <Space>
-                      <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-600">
-                        {optionLabel}
-                      </span>
-                      {showResult && isCorrectAnswer && (
-                        <CheckCircleOutlined className="text-xl text-green-500" />
-                      )}
-                      {showResult && isSelected && !isCorrectAnswer && (
-                        <CloseCircleOutlined className="text-xl text-red-500" />
-                      )}
-                      <span>{option}</span>
-                    </Space>
-                  </Radio.Button>
-                );
-              })}
-            </Space>
-          </AppRadioGroup>
+                  if (showResult) {
+                    if (isCorrectAnswer) {
+                      buttonClass += " bg-green-100 border-green-500";
+                    } else if (isSelected && !isCorrectAnswer) {
+                      buttonClass += " bg-red-100 border-red-500";
+                    }
+                  }
+
+                  return (
+                    <Radio.Button
+                      key={index}
+                      value={option}
+                      className={buttonClass}
+                      style={{
+                        height: "60px",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "18px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      <Space>
+                        <span className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-600">
+                          {optionLabel}
+                        </span>
+                        {showResult && isCorrectAnswer && (
+                          <CheckCircleOutlined className="text-xl text-green-500" />
+                        )}
+                        {showResult && isSelected && !isCorrectAnswer && (
+                          <CloseCircleOutlined className="text-xl text-red-500" />
+                        )}
+                        <span>{option}</span>
+                      </Space>
+                    </Radio.Button>
+                  );
+                })}
+              </Space>
+            </AppRadioGroup>
+          </div>
 
           {/* Hiển thị kết quả */}
           {showResult && (
