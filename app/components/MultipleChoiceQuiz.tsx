@@ -4,12 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Radio, Space, Row, Col, message } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import type { AlphabetType, JapaneseCharacter } from "../data/japaneseAlphabet";
-import {
-  hiragana,
-  katakana,
-  getRandomWrongAnswers,
-  shuffleArray,
-} from "../data/japaneseAlphabet";
+import { getRandomWrongAnswers, shuffleArray } from "../data/japaneseAlphabet";
+import { getJapaneseCharacters } from "@/lib/api";
 import {
   AppCard,
   AppTitle,
@@ -22,6 +18,7 @@ import {
 
 export default function MultipleChoiceQuiz() {
   const [alphabetType, setAlphabetType] = useState<AlphabetType>("hiragana");
+  const [characters, setCharacters] = useState<JapaneseCharacter[]>([]);
   const [currentQuestion, setCurrentQuestion] =
     useState<JapaneseCharacter | null>(null);
   const [options, setOptions] = useState<string[]>([]);
@@ -31,34 +28,42 @@ export default function MultipleChoiceQuiz() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Khởi tạo câu hỏi đầu tiên khi thay đổi loại bảng chữ cái
+  // Load dữ liệu từ database khi component mount hoặc thay đổi loại bảng chữ cái
   useEffect(() => {
-    const loadQuestion = () => {
+    const loadCharacters = async () => {
       setIsLoading(true);
+      try {
+        // Fetch dữ liệu từ API
+        const data = await getJapaneseCharacters(alphabetType);
+        setCharacters(data);
 
-      setTimeout(() => {
-        const characters = alphabetType === "hiragana" ? hiragana : katakana;
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        const question = characters[randomIndex];
+        // Tạo câu hỏi đầu tiên
+        if (data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length);
+          const question = data[randomIndex];
 
-        setCurrentQuestion(question);
-        setSelectedAnswer("");
-        setShowResult(false);
+          setCurrentQuestion(question);
+          setSelectedAnswer("");
+          setShowResult(false);
 
-        const allRomaji = characters.map((char) => char.romaji);
-        const wrongAnswers = getRandomWrongAnswers(
-          question.romaji,
-          allRomaji,
-          3,
-        );
-        const allOptions = shuffleArray([question.romaji, ...wrongAnswers]);
-        setOptions(allOptions);
+          const allRomaji = data.map((char) => char.romaji);
+          const wrongAnswers = getRandomWrongAnswers(
+            question.romaji,
+            allRomaji,
+            3,
+          );
+          const allOptions = shuffleArray([question.romaji, ...wrongAnswers]);
+          setOptions(allOptions);
+        }
+      } catch (error) {
+        console.error("Error loading characters:", error);
+        message.error("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+      } finally {
         setIsLoading(false);
-      }, 200);
+      }
     };
 
-    const timer = setTimeout(loadQuestion, 0);
-    return () => clearTimeout(timer);
+    loadCharacters();
   }, [alphabetType]);
 
   // Xử lý khi chọn đáp án - tự động check và chuyển câu
@@ -87,10 +92,9 @@ export default function MultipleChoiceQuiz() {
 
   // Tự động chuyển câu tiếp theo sau khi hiển thị kết quả
   useEffect(() => {
-    if (!showResult) return;
+    if (!showResult || characters.length === 0) return;
 
     const timer = setTimeout(() => {
-      const characters = alphabetType === "hiragana" ? hiragana : katakana;
       const randomIndex = Math.floor(Math.random() * characters.length);
       const question = characters[randomIndex];
 
@@ -105,7 +109,7 @@ export default function MultipleChoiceQuiz() {
     }, 2000); // 2 giây để người dùng xem kết quả
 
     return () => clearTimeout(timer);
-  }, [showResult, alphabetType]);
+  }, [showResult, characters]);
 
   // Xử lý keyboard shortcuts (1-4, A-D)
   useEffect(() => {
@@ -149,7 +153,7 @@ export default function MultipleChoiceQuiz() {
   return (
     <AppCard variant="shadow">
       <div className="mb-6 text-center">
-        <AppTitle level={1} className="!mb-2" data-tour="title">
+        <AppTitle level={1} className="mb-2!" data-tour="title">
           Học Bảng Chữ Cái Tiếng Nhật
         </AppTitle>
       </div>

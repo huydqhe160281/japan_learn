@@ -30,7 +30,11 @@ export const AppStatistic = ({
   return (
     <Statistic
       className={clsx(className)}
-      valueStyle={getValueStyle()}
+      styles={{
+        content: {
+          color: getValueStyle().color,
+        },
+      }}
       {...props}
     />
   );

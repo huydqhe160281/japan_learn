@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Model cho ký tự tiếng Nhật
+model JapaneseCharacter {
+  id        String       @id @default(cuid())
+  character String       // Ký tự tiếng Nhật (ví dụ: あ, ア)
+  romaji    String       // Cách đọc bằng romaji (ví dụ: a, ka)
+  type      AlphabetType // Loại bảng chữ cái: hiragana hoặc katakana
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([type])
+  @@map("japanese_characters")
+}
+
+enum AlphabetType {
+  hiragana
+  katakana
+}

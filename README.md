@@ -2,16 +2,36 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Cài đặt dependencies
+
+```bash
+npm install
+```
+
+### 2. Cấu hình Database
+
+Tạo file `.env` trong thư mục root và thêm connection string cho PostgreSQL (Neon):
+
+```env
+DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
+```
+
+Nếu bạn sử dụng Neon (Vercel), bạn có thể lấy connection string từ dashboard của Neon.
+
+### 3. Chạy Migration và Seed dữ liệu
+
+```bash
+# Tạo migration và apply schema vào database
+npm run db:migrate
+
+# Import dữ liệu ký tự tiếng Nhật vào database
+npm run db:seed
+```
+
+### 4. Chạy development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -19,6 +39,16 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Database Setup
+
+Dự án này sử dụng Prisma với PostgreSQL (Neon) để lưu trữ dữ liệu ký tự tiếng Nhật.
+
+### Các lệnh database:
+
+- `npm run db:generate` - Generate Prisma Client
+- `npm run db:migrate` - Tạo và apply migration
+- `npm run db:seed` - Import dữ liệu vào database
 
 ## Learn More
 

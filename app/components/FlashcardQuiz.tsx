@@ -8,7 +8,8 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import type { AlphabetType, JapaneseCharacter } from "../data/japaneseAlphabet";
-import { hiragana, katakana, shuffleArray } from "../data/japaneseAlphabet";
+import { shuffleArray } from "../data/japaneseAlphabet";
+import { getJapaneseCharacters } from "@/lib/api";
 import {
   AppCard,
   AppTitle,
@@ -29,18 +30,23 @@ export default function FlashcardQuiz() {
 
   // Khởi tạo cards khi thay đổi loại bảng chữ cái
   useEffect(() => {
-    const loadCards = () => {
+    const loadCards = async () => {
       setIsLoading(true);
       setIsFlipped(false);
 
-      setTimeout(() => {
-        const characters = alphabetType === "hiragana" ? hiragana : katakana;
+      try {
+        // Fetch dữ liệu từ API
+        const characters = await getJapaneseCharacters(alphabetType);
         const shuffled = shuffleArray([...characters]);
         setCards(shuffled);
         setCurrentIndex(0);
         setKnownCards(new Set());
+      } catch (error) {
+        console.error("Error loading characters:", error);
+        message.error("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+      } finally {
         setIsLoading(false);
-      }, 200);
+      }
     };
 
     loadCards();
@@ -196,7 +202,7 @@ export default function FlashcardQuiz() {
   return (
     <AppCard variant="shadow">
       <div className="mb-6 text-center">
-        <AppTitle level={1} className="!mb-2" data-tour="title">
+        <AppTitle level={1} className="mb-2!" data-tour="title">
           Flashcard Học Bảng Chữ Cái
         </AppTitle>
       </div>
